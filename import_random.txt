@@ -1,0 +1,76 @@
+import random
+import datetime
+
+class DeliverySystem:
+    def __init__(self, name, status, order_date, delivery_date):
+        self.name = name
+        self.status = status
+        self.order_date = order_date
+        self.delivery_date = delivery_date
+
+def get_random_status():
+    random_number = random.randint(0, 2)
+    if random_number == 0:
+        status = "Delivered"
+    elif random_number == 1:
+        status = "In Transit"
+    else:
+        status = "Delayed"
+    return status
+
+def create_list():
+    delivery_systems = []
+    today = datetime.date.today()
+    for name in ["FedEx", "UPS", "DHL", "Amazon"]:
+        order_date = today - datetime.timedelta(days=random.randint(0, 10))
+        delivery_systems.append(DeliverySystem(name, get_random_status(), order_date, None))
+
+    print("Delivery Systems Tracker")
+
+    for d in delivery_systems:
+        diff_days = (today - d.order_date).days
+        if diff_days >= 7 and d.status != "Delivered":
+            d.status = "Delayed"
+            d.delivery_date = today + datetime.timedelta(days=random.randint(1, 5))
+        elif diff_days >= 5 and d.status == "In Transit":
+            d.status = "Delivered"
+            d.delivery_date = today
+
+        if diff_days == 1:
+          print(d.name + ": " + d.status + " (" + str(diff_days) + " day since order)")
+        elif diff_days == 0:
+          print(d.name + ": " + d.status + " (" + "Ordered today)")
+        else:
+          print(d.name + ": " + d.status + " (" + str(diff_days) + " days since order)")
+
+
+        if d.status == "Delivered" and d.delivery_date is not None:
+            print("Expected delivery: " + d.delivery_date.strftime("%Y-%m-%d"))
+
+    return delivery_systems
+
+def track_delivery(delivery_systems):
+    delivery_name = input("Enter the name of the delivery system to track: ").lower()
+    found = False
+    for d in delivery_systems:
+        if d.name.lower() == delivery_name:
+            found = True
+            print("Delivery System: " + d.name)
+            print("Status: " + d.status)
+            print("Order Date: " + d.order_date.strftime("%Y-%m-%d"))
+            if d.status == "Delivered" and d.delivery_date is not None:
+                print("Delivery Date: " + d.delivery_date.strftime("%Y-%m-%d"))
+            break
+    if not found:
+        print("Delivery system not found.")
+
+
+answer = input("Do you want to show a list of delivery systems or track a specific delivery? (list/track/exit) ").lower()
+
+if answer == "list":
+    create_list()
+elif answer == "track":
+    delivery_systems = create_list()
+    track_delivery(delivery_systems)
+else:
+    print("Okay, goodbye.")
